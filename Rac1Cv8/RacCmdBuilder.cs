@@ -251,6 +251,20 @@ namespace Rac1Cv8
             return cmd.ToString();
         }
 
+        public static string GetRuleListCmd(string ConnStr, string ClusterUID, string ClusterUser, string ClusterPwd, string ServerUID)
+        {
+            StringBuilder cmd = new StringBuilder();
+
+            cmd.AppendFormat("{0} rule list --server={1} --cluster={2} {3}",
+                ConnStr,
+                ServerUID,
+                ClusterUID,
+                (ClusterUser == string.Empty) ? "" : "--cluster-user=" + ClusterUser + " --cluster-pwd=" + ClusterPwd
+                );
+
+            return cmd.ToString();
+        }
+
         public static string GetClusterRecyclingCmd(string ConnStr, string ClusterUID, string AgentUser, string AgentPwd, int seconds)
         {
 

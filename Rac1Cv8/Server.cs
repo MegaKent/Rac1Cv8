@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -67,6 +68,22 @@ namespace Rac1Cv8
             SafeWPMemoryLimit = long.TryParse(properties[10], out long _SafeWPMemoryLimit) ? _SafeWPMemoryLimit : -1;
             SafeCallMemoryLimit = long.TryParse(properties[11], out long _SafeCallMemoryLimit) ? _SafeCallMemoryLimit : -1;
             ClusterPort = int.TryParse(properties[12], out int _ClusterPort) ? _ClusterPort : -1;
+        }
+
+        public List<Rule> GetRules()
+        {
+            ProcessStartInfo start = new ProcessStartInfo(
+                                                this.RacPath,
+                                                RacCmdBuilder.GetRuleListCmd(ConnStr, ClusterUID, ClusterUser, ClusterPwd,UID));
+            start.UseShellExecute = false;
+            start.RedirectStandardOutput = true;
+            start.RedirectStandardError = true;
+            start.CreateNoWindow = true;
+
+            using (System.Diagnostics.Process process = System.Diagnostics.Process.Start(start))
+            {
+                return Parser.ParseRules(UID, process.StandardOutput, RacPath, ConnStr, ClusterUser, ClusterPwd);
+            }
         }
 
         private List<PortRange> GetPortRanges(string str)

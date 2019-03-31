@@ -23,6 +23,8 @@ namespace Rac1Cv8
         private static int WorkingProcValueIndex  = 23;
         private static int ServerPropCount        = 13;
         private static int ServerValueIndex       = 38;
+        private static int RulePropCount          = 6;
+        private static int RuleValueIndex         = 18;
 
         public static List<Cluster> ParseClusters(StreamReader stream, string RacPath, string ConnStr)
         {
@@ -358,6 +360,48 @@ namespace Rac1Cv8
             }
 
             return ServerList;
+        }
+
+        public static List<Rule> ParseRules(
+            string ClusterUID,
+            StreamReader stream,
+            string RacPath,
+            string ConnStr,
+            string ClusterUser,
+            string ClusterPwd
+            )
+        {
+            List<Rule> RuleList = new List<Rule>();
+
+            string[] str = new string[RulePropCount];
+            int counter = 0;
+
+            while (!stream.EndOfStream)
+            {
+                var output = stream.ReadLine();
+
+                if (counter == RulePropCount)
+                {
+                    RuleList.Add(new Rule(str));
+                    counter = 0;
+                    str = new string[RulePropCount];
+                    continue;
+                }
+
+                if (output[output.Length - 1] != '"')
+                {
+                    str[counter] = output.Substring(RuleValueIndex, output.Length - RuleValueIndex);
+                }
+                else
+                {
+                    str[counter] = (output.Substring(RuleValueIndex + 1, output.Length - (RuleValueIndex + 2))).Replace("\"\"", "\"");
+                }
+
+                counter++;
+
+            }
+
+            return RuleList;
         }
 
     }
