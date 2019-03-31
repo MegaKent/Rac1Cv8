@@ -22,7 +22,7 @@ namespace Rac1Cv8
         private static int WorkingProcPropCount   = 20;
         private static int WorkingProcValueIndex  = 23;
         private static int ServerPropCount        = 13;
-        private static int ServerValueIndex       = 39;
+        private static int ServerValueIndex       = 38;
 
         public static List<Cluster> ParseClusters(StreamReader stream, string RacPath, string ConnStr)
         {
