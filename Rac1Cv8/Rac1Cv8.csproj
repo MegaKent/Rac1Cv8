@@ -45,6 +45,7 @@
     <Compile Include="InfoBase.cs" />
     <Compile Include="License.cs" />
     <Compile Include="Parser.cs" />
+    <Compile Include="Server.cs" />
     <Compile Include="WorkingProcess.cs" />
     <Compile Include="Rac1Cv8.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -238,6 +238,19 @@ namespace Rac1Cv8
             return cmd.ToString();
         }
 
+        public static string GetServerListCmd(string ConnStr, string ClusterUID, string ClusterUser, string ClusterPwd)
+        {
+            StringBuilder cmd = new StringBuilder();
+
+            cmd.AppendFormat("{0} server list --cluster={1} {2}",
+                ConnStr,
+                ClusterUID,
+                (ClusterUser == string.Empty) ? "" : "--cluster-user=" + ClusterUser + " --cluster-pwd=" + ClusterPwd
+                );
+
+            return cmd.ToString();
+        }
+
         public static string GetClusterRecyclingCmd(string ConnStr, string ClusterUID, string AgentUser, string AgentPwd, int seconds)
         {
 

@@ -9,18 +9,20 @@ namespace Rac1Cv8
         //PropCount  = obj properties count
         //ValueIndex = char index after ":"
 
-        private static int ClusterPropCount = 13;
-        private static int ClusterValueIndex = 32;
-        private static int SessionPropCount = 44;
-        private static int SessionValueIndex = 35;
-        private static int LicensesPropCount = 16;
-        private static int LicenseValueIndex = 21;
-        private static int InfoBasePropCount = 3;
-        private static int InfoBaseValueIndex = 11;
-        private static int InfoBasePropCountFull = 20;
+        private static int ClusterPropCount       = 13;
+        private static int ClusterValueIndex      = 32;
+        private static int SessionPropCount       = 44;
+        private static int SessionValueIndex      = 35;
+        private static int LicensesPropCount      = 16;
+        private static int LicenseValueIndex      = 21;
+        private static int InfoBasePropCount      = 3;
+        private static int InfoBaseValueIndex     = 11;
+        private static int InfoBasePropCountFull  = 20;
         private static int InfoBaseValueIndexFull = 45;
-        private static int WorkingProcPropCount = 20;
-        private static int WorkingProcValueIndex = 23;
+        private static int WorkingProcPropCount   = 20;
+        private static int WorkingProcValueIndex  = 23;
+        private static int ServerPropCount        = 13;
+        private static int ServerValueIndex       = 39;
 
         public static List<Cluster> ParseClusters(StreamReader stream, string RacPath, string ConnStr)
         {
@@ -314,6 +316,48 @@ namespace Rac1Cv8
             {
                 return str;
             }
+        }
+
+        public static List<Server> ParseServers(
+            string ClusterUID,
+            StreamReader stream,
+            string RacPath,
+            string ConnStr,
+            string ClusterUser,
+            string ClusterPwd
+            )
+        {
+            List<Server> ServerList = new List<Server>();
+
+            string[] str = new string[ServerPropCount];
+            int counter = 0;
+
+            while (!stream.EndOfStream)
+            {
+                var output = stream.ReadLine();
+
+                if (counter == ServerPropCount)
+                {
+                    ServerList.Add(new Server(ClusterUID, str, RacPath, ConnStr, ClusterUser, ClusterPwd));
+                    counter = 0;
+                    str = new string[ServerPropCount];
+                    continue;
+                }
+
+                if (output[output.Length - 1] != '"')
+                {
+                    str[counter] = output.Substring(ServerValueIndex, output.Length - ServerValueIndex);
+                }
+                else
+                {
+                    str[counter] = (output.Substring(ServerValueIndex + 1, output.Length - (ServerValueIndex + 2))).Replace("\"\"", "\"");
+                }
+
+                counter++;
+
+            }
+
+            return ServerList;
         }
 
     }

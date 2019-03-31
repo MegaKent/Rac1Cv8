@@ -213,6 +213,25 @@ namespace Rac1Cv8
 
         }
 
+        public List<Server> GetServers()
+        {
+            CheckAuthentication();
+
+            List<Server> Servers = new List<Server>();
+
+            ProcessStartInfo start = new ProcessStartInfo(this.RacPath,
+                                           RacCmdBuilder.GetServerListCmd(ConnStr, UID, ClusterUser, ClusterPwd));
+            start.UseShellExecute = false;
+            start.RedirectStandardOutput = true;
+            start.RedirectStandardError = true;
+            start.CreateNoWindow = true;
+
+            using (System.Diagnostics.Process process = System.Diagnostics.Process.Start(start))
+            {
+                return Parser.ParseServers(UID, process.StandardOutput, RacPath, ConnStr, ClusterUser, ClusterPwd);
+            }
+        }
+
         public void CreateInfoBase(
             string Name,
             string DBMS,
