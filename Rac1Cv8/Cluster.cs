@@ -38,10 +38,9 @@ namespace Rac1Cv8
 
         public Cluster(string[] str, string RacPath, string ConnStr)
         {
-            InitializeProperties(str);
             this.RacPath = RacPath;
             this.ConnStr = ConnStr;
-
+            InitializeProperties(str);
         }
 
         private void InitializeProperties(string[] properties)

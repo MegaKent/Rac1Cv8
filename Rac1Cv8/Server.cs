@@ -22,6 +22,7 @@ namespace Rac1Cv8
         public long SafeWPMemoryLimit { get; private set; }
         public long SafeCallMemoryLimit { get; private set; }
         public int ClusterPort { get; private set; }
+        public List<Rule> Rules { get; private set; }
 
         public string ClusterUID { get; private set; }
 
@@ -44,41 +45,41 @@ namespace Rac1Cv8
             string ClusterPwd
             )
         {
-
-            InitializeProperties(properties);
-            this.RacPath = RacPath;
-            this.ConnStr = ConnStr;
+            this.RacPath     = RacPath;
+            this.ConnStr     = ConnStr;
             this.ClusterUser = ClusterUser;
-            this.ClusterPwd = ClusterPwd;
-            this.ClusterUID = ClusterUID;
+            this.ClusterPwd  = ClusterPwd;
+            this.ClusterUID  = ClusterUID;
+            InitializeProperties(properties);
         }
 
         private void InitializeProperties(string[] properties)
         {
-            UID = properties[0];
-            AgentHost = properties[1];
-            AgentPort = int.TryParse(properties[2], out int _AgentPort) ? _AgentPort : -1;
-            PortRange = GetPortRanges(properties[3]);
-            Name = properties[4];
-            Using = properties[5];
-            DedicateManagers = properties[6];
-            InfobaseLimit = int.TryParse(properties[7], out int _InfobaseLimit) ? _InfobaseLimit : -1;
-            MemoryLimit = long.TryParse(properties[8], out long _MemoryLimit) ? _MemoryLimit : -1;
-            ConnectionsLimit = int.TryParse(properties[9], out int _ConnectionsLimit) ? _ConnectionsLimit : -1;
-            SafeWPMemoryLimit = long.TryParse(properties[10], out long _SafeWPMemoryLimit) ? _SafeWPMemoryLimit : -1;
+            UID                 = properties[0];
+            AgentHost           = properties[1];
+            AgentPort           = int.TryParse(properties[2], out int _AgentPort) ? _AgentPort : -1;
+            PortRange           = GetPortRanges(properties[3]);
+            Name                = properties[4];
+            Using               = properties[5];
+            DedicateManagers    = properties[6];
+            InfobaseLimit       = int.TryParse(properties[7], out int _InfobaseLimit) ? _InfobaseLimit : -1;
+            MemoryLimit         = long.TryParse(properties[8], out long _MemoryLimit) ? _MemoryLimit : -1;
+            ConnectionsLimit    = int.TryParse(properties[9], out int _ConnectionsLimit) ? _ConnectionsLimit : -1;
+            SafeWPMemoryLimit   = long.TryParse(properties[10], out long _SafeWPMemoryLimit) ? _SafeWPMemoryLimit : -1;
             SafeCallMemoryLimit = long.TryParse(properties[11], out long _SafeCallMemoryLimit) ? _SafeCallMemoryLimit : -1;
-            ClusterPort = int.TryParse(properties[12], out int _ClusterPort) ? _ClusterPort : -1;
+            ClusterPort         = int.TryParse(properties[12], out int _ClusterPort) ? _ClusterPort : -1;
+            Rules               = GetRules();
         }
 
-        public List<Rule> GetRules()
+        private List<Rule> GetRules()
         {
             ProcessStartInfo start = new ProcessStartInfo(
                                                 this.RacPath,
                                                 RacCmdBuilder.GetRuleListCmd(ConnStr, ClusterUID, ClusterUser, ClusterPwd,UID));
-            start.UseShellExecute = false;
+            start.UseShellExecute        = false;
             start.RedirectStandardOutput = true;
-            start.RedirectStandardError = true;
-            start.CreateNoWindow = true;
+            start.RedirectStandardError  = true;
+            start.CreateNoWindow         = true;
 
             using (System.Diagnostics.Process process = System.Diagnostics.Process.Start(start))
             {

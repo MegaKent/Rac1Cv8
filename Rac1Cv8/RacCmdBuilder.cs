@@ -225,6 +225,29 @@ namespace Rac1Cv8
             return cmd.ToString();
         }
 
+        public static string UnLockInfoBaseEasyCmd(
+             string ConnStr,
+             string ClusterUID,
+             string ClusterUser,
+             string ClusterPwd,
+             string InfoBaseUID,
+             string InfoBaseUser,
+             string InfoBasePwd,
+             bool ScheduledJobsAllow)
+        {
+            StringBuilder cmd = new StringBuilder();
+
+            cmd.AppendFormat("{0} infobase update --cluster={1} --infobase={2} --sessions-deny=off {3} {4}",
+                ConnStr,
+                ClusterUID,
+                InfoBaseUID,
+                (ClusterUser == string.Empty) ? "" : "--cluster-user=" + ClusterUser + " --cluster-pwd=" + ClusterPwd,
+                (InfoBaseUser == string.Empty) ? "" : "--infobase-user=\"" + InfoBaseUser + "\" --infobase-pwd=" + InfoBasePwd
+                );
+
+            return cmd.ToString();
+        }
+
         public static string GetProcessesCmd(string ConnStr, string ClusterUID, string ClusterUser, string ClusterPwd)
         {
             StringBuilder cmd = new StringBuilder();

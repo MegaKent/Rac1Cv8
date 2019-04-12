@@ -44,12 +44,12 @@ namespace Rac1Cv8
 
         public InfoBase(string ClusterUID, string[] props, string RacPath, string ConnStr, string ClusterUser, string ClusterPwd)
         {
-            InitializeProperties(props);
             this.ClusterUID     = ClusterUID;
             this.RacPath        = RacPath;
             this.ConnStr        = ConnStr;
             this.ClusterUser    = ClusterUser;
             this.ClusterPwd     = ClusterPwd;
+            InitializeProperties(props);
         }
 
         private void InitializeProperties(string[] props)
@@ -183,14 +183,24 @@ namespace Rac1Cv8
         }
 
 
-        public void UnLockInfoBase(bool ScheduledJobsAllow = true)
+        public void UnLockInfoBase(bool EasyUnlock = false, bool ScheduledJobsAllow = true)
         {
             if (! this.isAuthenticated)
             {
                 throw new Exception("User is not authenticated!");
             }
 
-            string cmd = RacCmdBuilder.UnLockInfoBaseCmd(ConnStr, ClusterUID, ClusterUser, ClusterPwd, UID, IBUser, IBPwd, ScheduledJobsAllow);
+            string cmd = string.Empty;
+
+            if (EasyUnlock)
+            {
+                cmd = RacCmdBuilder.UnLockInfoBaseEasyCmd(ConnStr, ClusterUID, ClusterUser, ClusterPwd, UID, IBUser, IBPwd, ScheduledJobsAllow);
+            }
+            else
+            {
+                cmd = RacCmdBuilder.UnLockInfoBaseCmd(ConnStr, ClusterUID, ClusterUser, ClusterPwd, UID, IBUser, IBPwd, ScheduledJobsAllow);
+            }
+            
 
             ProcessStartInfo start       = new ProcessStartInfo(this.RacPath, cmd);
             start.UseShellExecute        = false;
