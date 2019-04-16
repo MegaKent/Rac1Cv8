@@ -39,7 +39,6 @@ namespace Rac1Cv8
 
                 if (counter == ClusterPropCount)
                 {
-                    stream.ReadLine();
                     clusters.Add(new Cluster(str, RacPath, ConnStr));
                     counter = 0;
                     str = new string[ClusterPropCount];
