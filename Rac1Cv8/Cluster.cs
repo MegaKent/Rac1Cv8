@@ -357,7 +357,14 @@ namespace Rac1Cv8
         {
             CheckAuthentication();
 
-            List<Session> sessions = GetSessions().FindAll(s => s.InfoBase.Name.ToLower() == InfoBase.ToLower() & s.AppId != "Designer");
+            List<Session> All_Sessions = GetSessions();
+
+            if (All_Sessions == null)
+            {
+                return;
+            }
+
+            List<Session> sessions = All_Sessions.FindAll(s => s.InfoBase.Name.ToLower() == InfoBase.ToLower() & s.AppId != "Designer");
 
             foreach (Session s in sessions)
             {
