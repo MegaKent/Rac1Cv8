@@ -51,7 +51,7 @@ namespace Rac1Cv8
             LoadBalancingMode          = (properties[2] == "performance") ? 0 : 1; ;
             Port                       = int.TryParse(properties[2], out int _Port) ? _Port : -1;
             ExpitarionTimeout          = int.TryParse(properties[4], out int _ExpitarionTimeout) ? _ExpitarionTimeout : -1;
-            LifetimeLimit              = int.TryParse(properties[5], out int _LifetimeLimit) ? LifetimeLimit : -1;
+            LifetimeLimit              = int.TryParse(properties[5], out int _LifetimeLimit) ? _LifetimeLimit : -1;
             MaxMemorySize              = int.TryParse(properties[6], out int _MaxMemorySize) ? _MaxMemorySize : -1;
             MaxMemoryTimeLimit         = int.TryParse(properties[7], out int _MaxMemoryTimeLimit) ? _MaxMemoryTimeLimit : -1;
             SecurityLevel              = int.TryParse(properties[8], out int _SecurityLevel) ? _SecurityLevel : -1;
