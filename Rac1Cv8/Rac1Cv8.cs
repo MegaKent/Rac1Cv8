@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 
 namespace Rac1Cv8
@@ -24,26 +25,15 @@ namespace Rac1Cv8
         /// </summary>
         public void Connect(string RacPath, string ConnStr)
         {
-            ProcessStartInfo start       = new ProcessStartInfo(RacPath,ConnStr);
-            start.UseShellExecute        = false;
-            start.RedirectStandardOutput = true;
-            start.RedirectStandardError  = true;
-            start.CreateNoWindow         = true;
+            string Command  = ConnStr;
 
-            using (System.Diagnostics.Process process = System.Diagnostics.Process.Start(start))
-            {
-                if (!process.StandardError.EndOfStream)
-                {
-                    throw new Exception(process.StandardError.ReadToEnd());
-                }
-                else
-                {
-                    this.RacPath = RacPath;
-                    this.ConnStr = ConnStr;
-                }
-            }
+            StreamReader sr = RacInvoker.RunWithErrCheck(RacPath, Command);
 
-            isConnected = true;
+            RacInvoker.CloseStreamReader(sr);
+
+            this.RacPath     = RacPath;
+            this.ConnStr     = ConnStr;
+            this.isConnected = true;
         }
 
         public void Connect()
@@ -58,20 +48,12 @@ namespace Rac1Cv8
                 throw new Exception(".ConnStr can not be null! ");
             }
 
-            ProcessStartInfo start       = new ProcessStartInfo(this.RacPath, this.ConnStr);
-            start.UseShellExecute        = false;
-            start.RedirectStandardOutput = true;
-            start.RedirectStandardError  = true;
-            start.CreateNoWindow         = true;
+            string Command = this.ConnStr;
 
-            using (System.Diagnostics.Process process = System.Diagnostics.Process.Start(start))
-            {
-                if (!process.StandardError.EndOfStream)
-                {
-                    throw new Exception(process.StandardError.ReadToEnd());
-                }
-            }
+            StreamReader sr = RacInvoker.RunWithErrCheck(this.RacPath, Command);
 
+            RacInvoker.CloseStreamReader(sr);
+           
             isConnected = true;
 
         }
@@ -83,26 +65,11 @@ namespace Rac1Cv8
                 throw new Exception(".Rac1Cv8 is not connected!");
             }
 
-            List<Cluster> clusters       = new List<Cluster>();
+            string Command = RacCmdBuilder.GetClusterCmd(ConnStr);
 
-            ProcessStartInfo start       = new ProcessStartInfo(this.RacPath, RacCmdBuilder.GetClusterCmd(ConnStr));
-            start.UseShellExecute        = false;
-            start.RedirectStandardOutput = true;
-            start.RedirectStandardError  = true;
-            start.CreateNoWindow         = true;
+            StreamReader sr = RacInvoker.RunWithErrCheck(this.RacPath, Command);
 
-            using (System.Diagnostics.Process process = System.Diagnostics.Process.Start(start))
-            {
-                if (!process.StandardError.EndOfStream)
-                {
-                    throw new Exception(process.StandardError.ReadToEnd());
-                }
-                else
-                {
-                    return Parser.ParseClusters(process.StandardOutput, RacPath, ConnStr);
-                }
-            }
+            return Parser.ParseClusters(sr, RacPath, ConnStr);
         }
-
     }
 }
