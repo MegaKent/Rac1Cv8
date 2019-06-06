@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.IO;
 
 namespace Rac1Cv8
 {
@@ -96,7 +96,7 @@ namespace Rac1Cv8
             }
             if (!(props[1] == "MSSQLServer" | props[1] == "PostgreSQL" | props[1] == "IBMDB2" | props[1] == "OracleDatabase"))
             {
-                excp += "\nDBMS contain MSSQLServer | PostgreSQL |  IBMDB2 | OracleDatabase";
+                excp += "\nDBMS contains only MSSQLServer | PostgreSQL |  IBMDB2 | OracleDatabase";
             }
             if (props[2] == string.Empty)
             {
@@ -114,20 +114,12 @@ namespace Rac1Cv8
         }
 
         public void Authenticate(string usr, string pwd)
-        { 
-            ProcessStartInfo start       = new ProcessStartInfo(this.RacPath, RacCmdBuilder.ClusterAuthCmd(ConnStr,UID, usr, pwd));
-            start.UseShellExecute        = false;
-            start.RedirectStandardOutput = true;
-            start.RedirectStandardError  = true;
-            start.CreateNoWindow         = true;
+        {
+            string Command  = RacCmdBuilder.ClusterAuthCmd(ConnStr, UID, usr, pwd);
 
-            using (System.Diagnostics.Process process = System.Diagnostics.Process.Start(start))
-            {
-                if (!process.StandardError.EndOfStream)
-                {
-                    throw new Exception(process.StandardError.ReadToEnd());
-                }
-            }
+            StreamReader sr = RacInvoker.RunWithErrCheck(this.RacPath, Command);
+
+            RacInvoker.CloseStreamReader(sr);
 
             this.ClusterUser = usr;
             this.ClusterPwd = pwd;
@@ -141,94 +133,54 @@ namespace Rac1Cv8
             List<License> Licenses = GetLicenses();
             List<InfoBase> InfoBases = GetInfoBases();
 
-            ProcessStartInfo start          = new ProcessStartInfo(
-                                                this.RacPath, 
-                                                RacCmdBuilder.GetSessionsCmd(ConnStr, UID, ClusterUser, ClusterPwd));
-            start.UseShellExecute           = false;
-            start.RedirectStandardOutput    = true;
-            start.RedirectStandardError     = true;
-            start.CreateNoWindow            = true;
+            string Command  = RacCmdBuilder.GetSessionsCmd(ConnStr, UID, ClusterUser, ClusterPwd);
+            StreamReader sr = RacInvoker.Run(this.RacPath, Command);
 
-            using (System.Diagnostics.Process process = System.Diagnostics.Process.Start(start))
-            {
-                return Parser.ParseSessions(UID, process.StandardOutput, RacPath, ConnStr, ClusterUser, ClusterPwd, Licenses, InfoBases);
-            }
+            return Parser.ParseSessions(UID, sr, RacPath, ConnStr, ClusterUser, ClusterPwd, Licenses, InfoBases);
         }
 
         public List<License> GetLicenses()
         {
             CheckAuthentication();
 
-            ProcessStartInfo start       = new ProcessStartInfo(this.RacPath, 
-                                           RacCmdBuilder.GetLicensesCmd(ConnStr, UID, ClusterUser, ClusterPwd));
-            start.UseShellExecute        = false;
-            start.RedirectStandardOutput = true;
-            start.RedirectStandardError  = true;
-            start.CreateNoWindow         = true;
+            string Command  = RacCmdBuilder.GetLicensesCmd(ConnStr, UID, ClusterUser, ClusterPwd);
 
-            using (System.Diagnostics.Process process = System.Diagnostics.Process.Start(start))
-            {
-                return Parser.ParseLicenses(process.StandardOutput, RacPath, ConnStr, ClusterUser, ClusterPwd);
-            }
+            StreamReader sr = RacInvoker.Run(this.RacPath, Command);
 
+            return Parser.ParseLicenses(sr, RacPath, ConnStr, ClusterUser, ClusterPwd);
         }
 
         public List<InfoBase> GetInfoBases()
         {
             CheckAuthentication();
 
-            List<InfoBase> InfoBases = new List<InfoBase>();
+            string Command   = RacCmdBuilder.GetInfoBaseListCmd(ConnStr, UID, ClusterUser, ClusterPwd);
 
-            ProcessStartInfo start       = new ProcessStartInfo(this.RacPath,
-                                           RacCmdBuilder.GetInfoBaseListCmd(ConnStr, UID, ClusterUser, ClusterPwd));
-            start.UseShellExecute        = false;
-            start.RedirectStandardOutput = true;
-            start.RedirectStandardError  = true;
-            start.CreateNoWindow         = true;
-
-            using (System.Diagnostics.Process process = System.Diagnostics.Process.Start(start))
-            {
-                return Parser.ParseInfoBases(UID, process.StandardOutput, RacPath, ConnStr, ClusterUser, ClusterPwd);
-            }
+            StreamReader sr  = RacInvoker.Run(this.RacPath, Command);
+           
+            return Parser.ParseInfoBases(UID, sr, RacPath, ConnStr, ClusterUser, ClusterPwd);
         }
 
         public List<WorkingProcess> GetProcesses()
         {
             CheckAuthentication();
 
-            List<WorkingProcess> Processes = new List<WorkingProcess>();
+            string Command  = RacCmdBuilder.GetProcessesCmd(ConnStr, UID, ClusterUser, ClusterPwd);
 
-            ProcessStartInfo start       = new ProcessStartInfo(this.RacPath,
-                                           RacCmdBuilder.GetProcessesCmd(ConnStr, UID, ClusterUser, ClusterPwd));
-            start.UseShellExecute        = false;
-            start.RedirectStandardOutput = true;
-            start.RedirectStandardError  = true;
-            start.CreateNoWindow         = true;
+            StreamReader sr = RacInvoker.Run(this.RacPath, Command);
 
-            using (System.Diagnostics.Process process = System.Diagnostics.Process.Start(start))
-            {
-                return Parser.ParseProcesses(UID, process.StandardOutput, RacPath, ConnStr, ClusterUser, ClusterPwd);
-            }
-
+            return Parser.ParseProcesses(UID, sr, RacPath, ConnStr, ClusterUser, ClusterPwd);
         }
 
         public List<Server> GetServers()
         {
             CheckAuthentication();
 
-            List<Server> Servers = new List<Server>();
+            string Command  = RacCmdBuilder.GetServerListCmd(ConnStr, UID, ClusterUser, ClusterPwd);
 
-            ProcessStartInfo start = new ProcessStartInfo(this.RacPath,
-                                           RacCmdBuilder.GetServerListCmd(ConnStr, UID, ClusterUser, ClusterPwd));
-            start.UseShellExecute = false;
-            start.RedirectStandardOutput = true;
-            start.RedirectStandardError = true;
-            start.CreateNoWindow = true;
+            StreamReader sr = RacInvoker.Run(this.RacPath, Command);
 
-            using (System.Diagnostics.Process process = System.Diagnostics.Process.Start(start))
-            {
-                return Parser.ParseServers(UID, process.StandardOutput, RacPath, ConnStr, ClusterUser, ClusterPwd);
-            }
+            return Parser.ParseServers(UID, sr, RacPath, ConnStr, ClusterUser, ClusterPwd);
         }
 
         public void CreateInfoBase(
@@ -256,23 +208,11 @@ namespace Rac1Cv8
 
             CheckNewInfoBaseProps(props);
 
-            string cmd = RacCmdBuilder.CreateInfoBaseCmd(ConnStr,UID,ClusterUser,ClusterPwd, props);
+            string Command  = RacCmdBuilder.CreateInfoBaseCmd(ConnStr, UID, ClusterUser, ClusterPwd, props);
 
-            ProcessStartInfo start       = new ProcessStartInfo(this.RacPath, cmd);
-            start.UseShellExecute        = false;
-            start.RedirectStandardOutput = true;
-            start.RedirectStandardError  = true;
-            start.CreateNoWindow         = true;
+            StreamReader sr = RacInvoker.RunWithErrCheck(this.RacPath, Command);
 
-            using (System.Diagnostics.Process process = System.Diagnostics.Process.Start(start))
-            {
-                if (!process.StandardError.EndOfStream)
-                {
-                    throw new Exception(process.StandardError.ReadToEnd());
-                }
-            }
-
-
+            RacInvoker.CloseStreamReader(sr);
         }
 
         public void DeleteInfoBase(string Name, bool DropDatabase,  string InfoBaseUser, string InfoBasePwd, bool ClearDatabase = false)
@@ -286,21 +226,11 @@ namespace Rac1Cv8
                 throw new Exception("Infobase "+ Name +" not exist!");
             }
 
-            string cmd = RacCmdBuilder.DeleteInfoBaseCmd(ConnStr,UID,ClusterUser,ClusterPwd,InfoBaseUID, InfoBaseUser, InfoBasePwd, DropDatabase, ClearDatabase);
+            string Command  = RacCmdBuilder.DeleteInfoBaseCmd(ConnStr, UID, ClusterUser, ClusterPwd, InfoBaseUID, InfoBaseUser, InfoBasePwd, DropDatabase, ClearDatabase);
 
-            ProcessStartInfo start       = new ProcessStartInfo(this.RacPath, cmd);
-            start.UseShellExecute        = false;
-            start.RedirectStandardOutput = true;
-            start.RedirectStandardError  = true;
-            start.CreateNoWindow         = true;
+            StreamReader sr = RacInvoker.RunWithErrCheck(this.RacPath, Command);
 
-            using (System.Diagnostics.Process process = System.Diagnostics.Process.Start(start))
-            {
-                if (!process.StandardError.EndOfStream)
-                {
-                    throw new Exception(process.StandardError.ReadToEnd());
-                }
-            }
+            RacInvoker.CloseStreamReader(sr);
 
         }
         
@@ -316,41 +246,22 @@ namespace Rac1Cv8
                 throw new Exception("Infobase " + Name + " not exist!");
             }
 
-            string cmd = RacCmdBuilder.DeleteInfoBaseCmd(ConnStr, UID, ClusterUser, ClusterPwd, InfoBaseUID, "", "", false, false);
+            string Command  = RacCmdBuilder.DeleteInfoBaseCmd(ConnStr, UID, ClusterUser, ClusterPwd, InfoBaseUID, "", "", false, false);
 
-            ProcessStartInfo start       = new ProcessStartInfo(this.RacPath, cmd);
-            start.UseShellExecute        = false;
-            start.RedirectStandardOutput = true;
-            start.RedirectStandardError  = true;
-            start.CreateNoWindow         = true;
+            StreamReader sr = RacInvoker.RunWithErrCheck(this.RacPath, Command);
 
-            using (System.Diagnostics.Process process = System.Diagnostics.Process.Start(start))
-            {
-                if (!process.StandardError.EndOfStream)
-                {
-                    throw new Exception(process.StandardError.ReadToEnd());
-                }
-            }
+            RacInvoker.CloseStreamReader(sr);
         }
 
         public void SetClusterRecycling(int seconds)
         {
             CheckAuthentication();
 
-            ProcessStartInfo start = new ProcessStartInfo(this.RacPath,
-                                           RacCmdBuilder.GetClusterRecyclingCmd(ConnStr, UID, ClusterUser, ClusterPwd, seconds));
-            start.UseShellExecute        = false;
-            start.RedirectStandardOutput = true;
-            start.RedirectStandardError  = true;
-            start.CreateNoWindow         = true;
+            string Command  = RacCmdBuilder.GetClusterRecyclingCmd(ConnStr, UID, ClusterUser, ClusterPwd, seconds);
 
-            using (System.Diagnostics.Process process = System.Diagnostics.Process.Start(start))
-            {
-                if (!process.StandardError.EndOfStream)
-                {
-                    throw new Exception(process.StandardError.ReadToEnd());
-                }
-            }
+            StreamReader sr = RacInvoker.RunWithErrCheck(this.RacPath, Command);
+
+            RacInvoker.CloseStreamReader(sr);
         }
 
         public void TerminateSessions(string InfoBase)

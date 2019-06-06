@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Rac1Cv8
 {
@@ -73,18 +71,12 @@ namespace Rac1Cv8
 
         private List<Rule> GetRules()
         {
-            ProcessStartInfo start = new ProcessStartInfo(
-                                                this.RacPath,
-                                                RacCmdBuilder.GetRuleListCmd(ConnStr, ClusterUID, ClusterUser, ClusterPwd,UID));
-            start.UseShellExecute        = false;
-            start.RedirectStandardOutput = true;
-            start.RedirectStandardError  = true;
-            start.CreateNoWindow         = true;
 
-            using (System.Diagnostics.Process process = System.Diagnostics.Process.Start(start))
-            {
-                return Parser.ParseRules(UID, process.StandardOutput, RacPath, ConnStr, ClusterUser, ClusterPwd);
-            }
+            string Command = RacCmdBuilder.GetRuleListCmd(ConnStr, ClusterUID, ClusterUser, ClusterPwd, UID);
+
+            StreamReader sr = RacInvoker.Run(this.RacPath, Command);
+
+            return Parser.ParseRules(UID, sr, RacPath, ConnStr, ClusterUser, ClusterPwd);
         }
 
         private List<PortRange> GetPortRanges(string str)

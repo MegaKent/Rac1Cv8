@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-
+using System.IO;
 
 namespace Rac1Cv8
 {
@@ -62,32 +62,20 @@ namespace Rac1Cv8
         public void Authenticate(string InfoBaseUser, string InfoBasePwd)
         {
             string[] props = new string[20];
-            string cmd = RacCmdBuilder.InfoBaseAuthCmd(ConnStr, ClusterUID, ClusterUser, ClusterPwd, UID, InfoBaseUser, InfoBasePwd);
+            string Command = RacCmdBuilder.InfoBaseAuthCmd(ConnStr, ClusterUID, ClusterUser, ClusterPwd, UID, InfoBaseUser, InfoBasePwd);
 
-            ProcessStartInfo start       = new ProcessStartInfo(this.RacPath, cmd);
-            start.UseShellExecute        = false;
-            start.RedirectStandardOutput = true;
-            start.RedirectStandardError  = true;
-            start.CreateNoWindow         = true;
+            StreamReader sr = RacInvoker.RunWithErrCheck(this.RacPath, Command);
 
-            using (System.Diagnostics.Process process = System.Diagnostics.Process.Start(start))
-            {
-                if (!process.StandardError.EndOfStream)
-                {
-                    throw new Exception(process.StandardError.ReadToEnd());
-                }
-                else
-                {
-                    props = Parser.InfoBaseProperties(
-                        ClusterUID, 
-                        process.StandardOutput,
+            props = Parser.InfoBaseProperties(
+                        ClusterUID,
+                        sr,
                         RacPath, ConnStr,
                         ClusterUser,
                         ClusterPwd,
                         InfoBaseUser,
                         InfoBasePwd);
-                }
-            }
+
+            RacInvoker.CloseStreamReader(sr);
 
             if (props != null)
             {
@@ -137,21 +125,11 @@ namespace Rac1Cv8
                 throw new Exception("User is not authenticated!");
             }
 
-            string cmd = RacCmdBuilder.LockInfoBaseCmd(ConnStr, ClusterUID, ClusterUser, ClusterPwd, UID, IBUser, IBPwd, DeniedFrom, DeniedTo, DeniedMessage, PermissionCode, ScheduledJobsDeny, SessionDeny);
+            string Command = RacCmdBuilder.LockInfoBaseCmd(ConnStr, ClusterUID, ClusterUser, ClusterPwd, UID, IBUser, IBPwd, DeniedFrom, DeniedTo, DeniedMessage, PermissionCode, ScheduledJobsDeny, SessionDeny);
 
-            ProcessStartInfo start       = new ProcessStartInfo(this.RacPath, cmd);
-            start.UseShellExecute        = false;
-            start.RedirectStandardOutput = true;
-            start.RedirectStandardError  = true;
-            start.CreateNoWindow         = true;
+            StreamReader sr = RacInvoker.RunWithErrCheck(this.RacPath, Command);
 
-            using (System.Diagnostics.Process process = System.Diagnostics.Process.Start(start))
-            {
-                if (!process.StandardError.EndOfStream)
-                {
-                    throw new Exception(process.StandardError.ReadToEnd());
-                }
-            }
+            RacInvoker.CloseStreamReader(sr);
         }
 
         public void LockInfoBase(
@@ -165,21 +143,11 @@ namespace Rac1Cv8
                 throw new Exception("User is not authenticated!");
             }
 
-            string cmd = RacCmdBuilder.LockInfoBaseCmd(ConnStr,ClusterUID,ClusterUser,ClusterPwd,UID,IBUser,IBPwd,DeniedFrom,DeniedTo,DeniedMessage,PermissionCode,ScheduledJobsDeny, SessionDeny);
+            string Command  = RacCmdBuilder.LockInfoBaseCmd(ConnStr, ClusterUID, ClusterUser, ClusterPwd, UID, IBUser, IBPwd, DeniedFrom, DeniedTo, DeniedMessage, PermissionCode, ScheduledJobsDeny, SessionDeny);
 
-            ProcessStartInfo start       = new ProcessStartInfo(this.RacPath, cmd);
-            start.UseShellExecute        = false;
-            start.RedirectStandardOutput = true;
-            start.RedirectStandardError  = true;
-            start.CreateNoWindow         = true;
+            StreamReader sr = RacInvoker.RunWithErrCheck(this.RacPath, Command);
 
-            using (System.Diagnostics.Process process = System.Diagnostics.Process.Start(start))
-            {
-                if (!process.StandardError.EndOfStream)
-                {
-                    throw new Exception(process.StandardError.ReadToEnd());
-                }
-            }
+            RacInvoker.CloseStreamReader(sr);
         }
 
 
@@ -190,32 +158,20 @@ namespace Rac1Cv8
                 throw new Exception("User is not authenticated!");
             }
 
-            string cmd = string.Empty;
+            string Command = string.Empty;
 
             if (EasyUnlock)
             {
-                cmd = RacCmdBuilder.UnLockInfoBaseEasyCmd(ConnStr, ClusterUID, ClusterUser, ClusterPwd, UID, IBUser, IBPwd, ScheduledJobsAllow);
+                Command = RacCmdBuilder.UnLockInfoBaseEasyCmd(ConnStr, ClusterUID, ClusterUser, ClusterPwd, UID, IBUser, IBPwd, ScheduledJobsAllow);
             }
             else
             {
-                cmd = RacCmdBuilder.UnLockInfoBaseCmd(ConnStr, ClusterUID, ClusterUser, ClusterPwd, UID, IBUser, IBPwd, ScheduledJobsAllow);
-            }
-            
-
-            ProcessStartInfo start       = new ProcessStartInfo(this.RacPath, cmd);
-            start.UseShellExecute        = false;
-            start.RedirectStandardOutput = true;
-            start.RedirectStandardError  = true;
-            start.CreateNoWindow         = true;
-
-            using (System.Diagnostics.Process process = System.Diagnostics.Process.Start(start))
-            {
-                if (!process.StandardError.EndOfStream)
-                {
-                    throw new Exception(process.StandardError.ReadToEnd());
-                }
+                Command = RacCmdBuilder.UnLockInfoBaseCmd(ConnStr, ClusterUID, ClusterUser, ClusterPwd, UID, IBUser, IBPwd, ScheduledJobsAllow);
             }
 
+            StreamReader sr = RacInvoker.RunWithErrCheck(this.RacPath, Command);
+
+            RacInvoker.CloseStreamReader(sr);
         }
 
     }
