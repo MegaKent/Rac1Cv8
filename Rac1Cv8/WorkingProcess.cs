@@ -48,7 +48,7 @@ namespace Rac1Cv8
             PID = int.TryParse(properties[3], out int _PID) ? _PID: -1;
             isEnable = (properties[4] == "yes") ? true : false;
             Running = (properties[5] == "yes") ? 1 : 0;
-            StartedAt = DateTime.Parse(properties[6]);
+            StartedAt = DateTime.TryParse(properties[6], out DateTime _StartedAt)? _StartedAt: DateTime.MinValue;
             AvailablePerformance = int.TryParse(properties[8], out int _AvailablePerformance) ? _AvailablePerformance : -1;
             Capacity = int.TryParse(properties[9], out int _Capacity) ? _Capacity : -1;
             Connections = int.TryParse(properties[10], out int _Connections) ? _Connections : -1;
