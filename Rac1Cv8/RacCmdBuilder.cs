@@ -182,13 +182,14 @@ namespace Rac1Cv8
                 ClearDatabase = false;
             }
 
-            cmd.AppendFormat("{0} infobase drop --infobase={1} --cluster={2} {3} {4} {5}",
+            cmd.AppendFormat("{0} infobase drop --infobase={1} --cluster={2} {3} {4} {5} {6}",
                 ConnStr,
                 InfoBaseUID,
                 ClusterUID,
                 (ClusterUser == string.Empty) ? "" : "--cluster-user=" + ClusterUser + " --cluster-pwd=" + ClusterPwd,
-                (!DropDataBase ) ? "" : "--drop-database --infobase-user=\"" + InfoBaseUser + "\" --infobase-pwd=" + InfoBasePwd,
-                (!ClearDatabase) ? "" : "--clear-database --infobase-user=\"" + InfoBaseUser + "\" --infobase-pwd=" + InfoBasePwd
+                (!DropDataBase ) ? "" : "--drop-database",
+                (!ClearDatabase) ? "" : "--clear-database",
+                (InfoBaseUser == string.Empty) ? "" : "--infobase-user=\"" + InfoBaseUser + "\" --infobase-pwd=" + InfoBasePwd
                 );
 
             return cmd.ToString();

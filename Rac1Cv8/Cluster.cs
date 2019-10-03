@@ -264,18 +264,26 @@ namespace Rac1Cv8
             RacInvoker.CloseStreamReader(sr);
         }
 
-        public void TerminateSessions(string InfoBase)
+        public void TerminateSessions(string InfoBase, bool DesignerTo = false)
         {
             CheckAuthentication();
 
             List<Session> All_Sessions = GetSessions();
+            List<Session> sessions;
 
             if (All_Sessions == null)
             {
                 return;
             }
 
-            List<Session> sessions = All_Sessions.FindAll(s => s.InfoBase.Name.ToLower() == InfoBase.ToLower() & s.AppId != "Designer");
+            if (DesignerTo)
+            {
+                sessions = All_Sessions.FindAll(s => s.InfoBase.Name.ToLower() == InfoBase.ToLower() & s.AppId != "Designer");
+            }
+            else
+            {
+                sessions = All_Sessions.FindAll(s => s.InfoBase.Name.ToLower() == InfoBase.ToLower());
+            }
 
             foreach (Session s in sessions)
             {
